@@ -1,1 +1,1 @@
-{"version":3,"file":"changableButton.d.ts","sourceRoot":"","sources":["../src/changableButton.ts"],"names":[],"mappings":"AAEA,MAAM,CAAC,OAAO,OAAO,eAAe;IAChC,OAAO,CAAC,OAAO,CAAU;;IAKlB,iBAAiB,IAAI,CAAC,SAAS,EAAC,OAAO,KAAI,IAAI;IAG/C,QAAQ,IAAI,OAAO;CAG7B"}
+{"version":3,"file":"changableButton.d.ts","sourceRoot":"","sources":["../src/changableButton.ts"],"names":[],"mappings":"AAEA,MAAM,CAAC,OAAO,OAAO,eAAe;IAChC,OAAO,CAAC,OAAO,CAAU;;IAKlB,iBAAiB,IAAI,CAAC,SAAS,EAAE,OAAO,KAAK,IAAI;IAGjD,QAAQ,IAAI,OAAO;CAG7B"}

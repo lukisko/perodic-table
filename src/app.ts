@@ -6,20 +6,20 @@ export default class LearningWorld {
 	private assets: MRE.AssetContainer;
 	constructor(private context: MRE.Context) {
 		this.assets = new MRE.AssetContainer(this.context);
-		
+
 		this.context.onStarted(() => {
 			this.started();
 		});
 
-		const periodic = new PeriodicTable(this.assets,{x:0,y:0,z:0});
+		const periodic = new PeriodicTable(this.assets, { x: 0, y: 0, z: 0 });
 
-		this.context.onUserJoined(()=>{
+		this.context.onUserJoined(() => {
 			periodic.onUserJoin();
 		})
 	}
 
 	private started() {
-		
+
 		/*MRE.Actor.Create(this.context,{
 			actor:{
 				text:{

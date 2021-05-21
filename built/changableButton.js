@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-class changableButton {
+class ChangableButton {
     constructor() {
         this.running = true;
     }
@@ -11,5 +11,5 @@ class changableButton {
         return this.running;
     }
 }
-exports.default = changableButton;
+exports.default = ChangableButton;
 //# sourceMappingURL=changableButton.js.map

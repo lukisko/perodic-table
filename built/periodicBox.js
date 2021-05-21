@@ -20,6 +20,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const MRE = __importStar(require("@microsoft/mixed-reality-extension-sdk"));
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const periodicTableInfo = require('../public/periodicTable.json');
 const buttonBoxSize = 1;
 const periodBlackBoxSize = 0.1;
@@ -59,11 +60,9 @@ class PeriodicTable {
             let startingY = 0;
             for (let j = 0; j < tableColumn.length; j++) {
                 const elementName = tableColumn[j];
-                if (i === 6)
-                    console.log(elementName);
+                //if (i === 6) { console.log(elementName); }
                 const groupMask = new MRE.GroupMask(this.assets.context, [elementName]);
-                if (i === 6)
-                    console.log(elementName);
+                //if (i === 6) { console.log(elementName); }
                 this.makePeriodicBox({
                     x: startingX,
                     y: startingY,
@@ -123,7 +122,7 @@ class PeriodicTable {
         });
         button.onClick((user) => {
             if (this.currentElement.tag === box.name) {
-                console.log(true);
+                //console.log(true);
                 box.appearance.materialId = this.currentElement.appearance.materialId;
                 const ration = periodBigBoxSize / periodBlackBoxSize;
                 box.transform.local.scale = new MRE.Vector3(ration, ration, ration);
@@ -139,7 +138,7 @@ class PeriodicTable {
         const texture = this.assets.createTexture("elementT-Cs", {
             uri: "/group1/Cs.png"
         });
-        console.log(texture.uri);
+        //console.log(texture.uri);
         const material = this.assets.createMaterial("elementM-Cs", {
             mainTextureId: texture.id,
         });
@@ -197,7 +196,7 @@ class PeriodicTable {
         const texture = this.assets.createTexture("element-" + element, {
             uri: "./" + groupNumber + "/" + element + ".png"
         });
-        console.log(texture.uri);
+        //console.log(texture.uri);
         const material = this.assets.createMaterial("element-" + element, {
             mainTextureId: texture.id,
         });

@@ -1182,17 +1182,17 @@
         "affectsGlobalScope": false
       },
       "./src/changableButton.ts": {
-        "version": "06ed731bc21c5d2ce2c3ed03585a60d72c916408668fcb4fe3a9b28e708c3adc",
-        "signature": "452e674a79dadffe425765e9851aa4cea82f73c0a95df8b8151078c53b5cef4f",
+        "version": "01effbb973ca65c5927d3ccb2d62948f5cd1629b6d42214be18c0da6660af243",
+        "signature": "e2415d64bbec20744b1791a8d4cc8fbf854bbcddac4307b2aa8b33cddb091102",
         "affectsGlobalScope": false
       },
       "./src/periodicBox.ts": {
-        "version": "d841f5cc4e04a56f2f3f3e812fe843374d7b8164f7b6e763802f81cb103c4c8c",
+        "version": "dda12f9e74b6ed5237ee022bad7bba5418ed0d91f4e9406e761fb358d088deae",
         "signature": "2d77698ba77b2f904f734f084ce6048ee791519f97b84129a632da052eb7e8af",
         "affectsGlobalScope": false
       },
       "./src/app.ts": {
-        "version": "7418c4d73d920d528658182216c32ed21883f2507f062da8acb292333ff5fcd5",
+        "version": "006455bb566c9ca0b96c40784fe01fa9149a3a9c46760fb2366fad573f950dd1",
         "signature": "5a3b11cb5ea8fd317e5dee9ee66792b0cc1f12d4b38275dc180234b1387dfb8d",
         "affectsGlobalScope": false
       },
@@ -1294,8 +1294,6 @@
       "strictNullChecks": false,
       "moduleResolution": 2,
       "esModuleInterop": true,
-      "watch": true,
-      "preserveWatchOutput": true,
       "configFilePath": "./tsconfig.json"
     },
     "referencedMap": {

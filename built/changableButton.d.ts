@@ -1,4 +1,4 @@
-export default class changableButton {
+export default class ChangableButton {
     private running;
     constructor();
     getchangeCallback(): (something: boolean) => void;
