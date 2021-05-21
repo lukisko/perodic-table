@@ -27,6 +27,7 @@ const periodBlackBoxSize = 0.1;
 const periodicWhiteBoxSize = 0.15;
 const periodBigBoxSize = 0.4;
 const margin = 0;
+const zDimension = 0.03;
 class PeriodicTable {
     constructor(assets, position, rotation = { x: 0, y: 0, z: 0, w: 1 }) {
         this.assets = assets;
@@ -42,9 +43,12 @@ class PeriodicTable {
         this.elementBoxesArr = [];
         this.elementBoxes = new Map();
         this.makeChangingBox({ x: 2, y: 0, z: 0 });
+        this.started = false;
         //this.makePeriodicBox({x:0,y:0,z:0},this.groupName,this.groupMask);
         //this.makePeriodicBox({x:-1,y:0,z:0},this.groupName2,this.groupMask2);
         this.makeAllPeriodicBoxes();
+        const arr = this.makeRandomElement();
+        this.changeChangingCube(arr[0], arr[1]);
         //console.log(periodicTableInfo);
     }
     /**
@@ -60,27 +64,24 @@ class PeriodicTable {
             let startingY = 0;
             for (let j = 0; j < tableColumn.length; j++) {
                 const elementName = tableColumn[j];
-                //if (i === 6) { console.log(elementName); }
-                const groupMask = new MRE.GroupMask(this.assets.context, [elementName]);
-                //if (i === 6) { console.log(elementName); }
                 this.makePeriodicBox({
                     x: startingX,
                     y: startingY,
                     z: startingZ,
-                }, elementName, i, groupMask);
+                }, elementName, i);
                 startingY += periodBigBoxSize + margin;
             }
             startingX -= periodBigBoxSize + margin;
         }
     }
-    makePeriodicBox(position, element, elementGroup, groupMask) {
+    makePeriodicBox(position, element, elementGroup) {
         const blackMaterial = this.assets.createMaterial("blackMaterial", {
             color: { r: 0, g: 0, b: 0 }
         });
         const box = MRE.Actor.CreatePrimitive(this.assets, {
             definition: {
                 shape: MRE.PrimitiveShape.Box,
-                dimensions: { x: periodBlackBoxSize, y: periodBlackBoxSize, z: periodBlackBoxSize }
+                dimensions: { x: periodBlackBoxSize, y: periodBlackBoxSize, z: zDimension }
             },
             addCollider: true,
             actor: {
@@ -93,45 +94,50 @@ class PeriodicTable {
                 }
             }
         });
-        const box2 = MRE.Actor.CreatePrimitive(this.assets, {
-            definition: {
-                shape: MRE.PrimitiveShape.Box,
-                dimensions: { x: periodicWhiteBoxSize, y: periodicWhiteBoxSize, z: periodicWhiteBoxSize }
-            },
-            addCollider: true,
-            actor: {
-                parentId: this.centerSpace.id,
-                transform: { local: { position: position } },
-                appearance: {
-                    enabled: groupMask
-                }
-            }
-        });
-        box2.appearance.enabled = groupMask;
         this.elementBoxes.set(element, box);
         this.elementBoxesArr.push(box);
         this.makePeriodicBoxAction(box);
     }
+    makeBox2(parent, user) {
+        MRE.Actor.CreatePrimitive(this.assets, {
+            definition: {
+                shape: MRE.PrimitiveShape.Box,
+                dimensions: { x: periodicWhiteBoxSize, y: periodicWhiteBoxSize, z: zDimension + 0.01 }
+            },
+            addCollider: true,
+            actor: {
+                parentId: parent.id,
+            }
+        });
+    }
     makePeriodicBoxAction(box) {
         const button = box.setBehavior(MRE.ButtonBehavior);
         button.onHover("enter", (user) => {
-            user.groups.add(box.name);
+            if (box.tag.startsWith("group")) {
+                this.makeBox2(box, user);
+            }
         });
         button.onHover("exit", (user) => {
-            user.groups.delete(box.name);
+            const cube = box.children.pop();
+            if (cube) {
+                cube.destroy();
+            }
         });
-        button.onClick((user) => {
+        button.onClick(() => {
             if (this.currentElement.tag === box.name) {
                 //console.log(true);
                 box.appearance.materialId = this.currentElement.appearance.materialId;
                 const ration = periodBigBoxSize / periodBlackBoxSize;
-                box.transform.local.scale = new MRE.Vector3(ration, ration, ration);
+                box.transform.local.scale = new MRE.Vector3(ration, ration, 1.1);
+                //console.log(this.elementBoxesArr.length,this.elementBoxesIndex);
+                this.elementBoxesArr[this.elementBoxesIndex].tag = "DONE";
                 this.elementBoxesArr.splice(this.elementBoxesIndex, 1);
             }
             const arr = this.makeRandomElement();
             if (arr.length > 1) {
-                this.changeChangingCube(arr[0], arr[1]); //TODO
+                this.changeChangingCube(arr[0], arr[1]);
             }
+            box.children.pop().destroy(); //delete the white box when you click on it ;)
         });
     }
     makeChangingBox(position) {
@@ -157,28 +163,64 @@ class PeriodicTable {
                 }
             }
         });
-        MRE.Actor.Create(this.assets.context, {
-            actor: {
-                parentId: this.currentElement.id,
-                text: {
-                    contents: "START",
-                    height: 0.2,
-                    color: { r: 0, g: 0, b: 0 },
-                    anchor: MRE.TextAnchorLocation.MiddleCenter,
-                },
-                transform: {
-                    local: { position: { x: 0, y: 0, z: -buttonBoxSize / 2 + 0.05 } }
-                }
+        this.changingCubeClickAction();
+    }
+    changingCubeClickAction() {
+        return;
+        /*const cubeButton = this.currentElement.setBehavior(MRE.ButtonBehavior);
+        cubeButton.onClick((user)=>{
+            if (this.started){
+                return;
             }
-        });
+            user.prompt("how hard do you want it? (0,1 or 2)",true)
+            .then((value)=>{
+                if (value.submitted){
+                    switch (value.text){
+                        case "0":
+                            // eslint-disable-next-line @typescript-eslint/no-var-requires
+
+                            const elementsWanted0: string[] = require("../public/periodicTableEasy.json");
+                            this.deleteNotWantedElements(elementsWanted0);
+                            break;
+                        case "1":
+                            // eslint-disable-next-line @typescript-eslint/no-var-requires
+                            const elementsWanted1: string[] = require("../public/periodicTableMedium.json");
+                            this.deleteNotWantedElements(elementsWanted1);
+                            break;
+                        case "2":
+                            // if you want it hard you will have all of them
+                            break;
+                        default:
+                            user.prompt("Sorry I did not get it, please try again");
+                    }
+                }
+            })
+        })*/
+    }
+    deleteNotWantedElements(elements) {
+        const lenght = this.elementBoxesArr.length;
+        let newArr = [];
+        const mapOfWanted = new Map();
+        for (const element of elements) {
+            mapOfWanted.set(element, element);
+        }
+        for (let i = 0; i < lenght; i++) {
+            const justName = this.elementBoxesArr[i].name;
+            if (mapOfWanted.get(justName)) {
+                newArr.push(this.elementBoxesArr[i]);
+            }
+        }
+        this.elementBoxesArr = newArr;
     }
     onUserJoin() {
         this.elementBoxes.forEach((value) => {
             this.makePeriodicBoxAction(value);
         });
+        this.changingCubeClickAction();
     }
     makeRandomElement() {
         if (this.elementBoxesArr.length < 1) {
+            this.allElementsTaken();
             return [];
         }
         const randomCubeIndex = Math.floor(Math.random() * this.elementBoxesArr.length);
@@ -187,7 +229,7 @@ class PeriodicTable {
         return [randomCube.tag, randomCube.name];
     }
     allElementsTaken() {
-        //TODO
+        //TODO what to do if all of them are on its place
     }
     changeChangingCube(groupNumber, element) {
         if (!this.currentElement) {

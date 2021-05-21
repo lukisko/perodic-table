@@ -1187,8 +1187,8 @@
         "affectsGlobalScope": false
       },
       "./src/periodicBox.ts": {
-        "version": "dda12f9e74b6ed5237ee022bad7bba5418ed0d91f4e9406e761fb358d088deae",
-        "signature": "2d77698ba77b2f904f734f084ce6048ee791519f97b84129a632da052eb7e8af",
+        "version": "3181cf785ca72266e80d4106e26ac12d603181e8039f0ad0f1f5d6efc72aa437",
+        "signature": "ca9c2171b2dc42f44083a1c492a6599f04534848a2d973ef77b88c1ff99b1e2d",
         "affectsGlobalScope": false
       },
       "./src/app.ts": {
