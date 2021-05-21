@@ -1,0 +1,6 @@
+{
+	"name": "Hello World Sample",
+	"author": "Silicon Hagen",
+	"license": "MIT",
+	"optionalPermissions": ["user-interaction"]
+}
