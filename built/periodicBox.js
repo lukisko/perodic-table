@@ -291,7 +291,7 @@ class PeriodicTable {
         this.elementBoxes.forEach((value) => {
             value.destroy();
         });
-        console.log("boxes destroyed.");
+        //console.log("boxes destroyed.");
         this.cubesWantedMap = new Map();
         for (let i = 0; i < this.cubesWanted.length; i++) {
             const str = this.cubesWanted[i];
@@ -320,7 +320,7 @@ class PeriodicTable {
         const randomCubeIndex = Math.floor(Math.random() * this.elementBoxesArr.length);
         const randomCube = this.elementBoxesArr[randomCubeIndex];
         this.elementBoxesIndex = randomCubeIndex;
-        console.log(randomCube.tag);
+        //console.log(randomCube.tag);
         return [randomCube.tag, randomCube.name];
     }
     allElementsTaken() {
