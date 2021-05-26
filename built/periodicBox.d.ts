@@ -64,8 +64,17 @@ export default class PeriodicTable {
      * what will happen when a user will join, we need to remake everithing clickable because of leter joiner bug
      */
     onUserJoin(): void;
+    /**
+     * function that will make random array of group number and element
+     * @returns array of random cube tag and the name of the cube from array this.elementBoxesArr
+     */
     private makeRandomElement;
     private allElementsTaken;
+    /**
+     * function that will change texture of the this.currentElement
+     * @param groupNumber number of group of the element (also name of the folder)
+     * @param element short string of the element name
+     */
     private changeChangingCube;
 }
 //# sourceMappingURL=periodicBox.d.ts.map

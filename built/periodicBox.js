@@ -312,6 +312,10 @@ class PeriodicTable {
         });
         this.changingCubeClickAction();
     }
+    /**
+     * function that will make random array of group number and element
+     * @returns array of random cube tag and the name of the cube from array this.elementBoxesArr
+     */
     makeRandomElement() {
         if (this.elementBoxesArr.length < 1) {
             this.allElementsTaken();
@@ -326,6 +330,11 @@ class PeriodicTable {
     allElementsTaken() {
         //TODO what to do if all of them are on its place
     }
+    /**
+     * function that will change texture of the this.currentElement
+     * @param groupNumber number of group of the element (also name of the folder)
+     * @param element short string of the element name
+     */
     changeChangingCube(groupNumber, element) {
         if (!this.currentElement) {
             return;

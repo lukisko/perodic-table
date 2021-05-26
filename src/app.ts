@@ -27,7 +27,7 @@ export default class LearningWorld {
 					anchor: MRE.TextAnchorLocation.MiddleCenter
 				}
 			}
-		});
+		}); testing
 		const button = new changableButton();
 		const toTrigger = button.getchangeCallback();
 		console.log(toTrigger);
