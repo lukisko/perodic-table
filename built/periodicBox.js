@@ -329,6 +329,7 @@ class PeriodicTable {
     }
     allElementsTaken() {
         //TODO what to do if all of them are on its place
+        this.currentElement.tag = null;
     }
     /**
      * function that will change texture of the this.currentElement
