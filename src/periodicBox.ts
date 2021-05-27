@@ -351,6 +351,7 @@ export default class PeriodicTable {
 	
 	private allElementsTaken() {
 		//TODO what to do if all of them are on its place
+		this.currentElement.tag = null ;
 	}
 
 	/**

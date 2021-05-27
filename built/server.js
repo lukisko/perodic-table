@@ -27,7 +27,7 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const path_1 = require("path");
 const app_1 = __importDefault(require("./app"));
 // add some generic error handlers here, to log any exceptions we're not expecting
-//process.on('uncaughtException', err => console.log('uncaughtException', err));
+// process.on('uncaughtException', err => console.log('uncaughtException', err));
 //process.on('unhandledRejection', reason => console.log('unhandledRejection', reason));
 // Read .env if file exists
 dotenv_1.default.config();

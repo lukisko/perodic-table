@@ -8,7 +8,7 @@ export default class LearningWorld {
 		this.assets = new MRE.AssetContainer(this.context);
 
 		this.context.onStarted(() => {
-			this.started();
+			this.started() ;
 		});
 
 		const periodic = new PeriodicTable(this.assets, { x: 0, y: 0, z: 0 });

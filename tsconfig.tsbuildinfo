@@ -1182,17 +1182,17 @@
         "affectsGlobalScope": false
       },
       "./src/changableButton.ts": {
-        "version": "01effbb973ca65c5927d3ccb2d62948f5cd1629b6d42214be18c0da6660af243",
+        "version": "3509ee0ef944dd63071f19e834c363cfc8759fcd75511a3fd69afce84b1313fe",
         "signature": "e2415d64bbec20744b1791a8d4cc8fbf854bbcddac4307b2aa8b33cddb091102",
         "affectsGlobalScope": false
       },
       "./src/periodicBox.ts": {
-        "version": "7f103ed28e41f2bdb7ba90efb3c4dba3f1402417083badc17b3dadcd1580e1f2",
+        "version": "b8e036242f12fcc1a94cf4600b9d017beac04dfe04a7fccbf5921680f7dc9e22",
         "signature": "907a32be159c08af887198f6391917bdf2b08a8f6d47a6eb7539738fb84d5ad1",
         "affectsGlobalScope": false
       },
       "./src/app.ts": {
-        "version": "006455bb566c9ca0b96c40784fe01fa9149a3a9c46760fb2366fad573f950dd1",
+        "version": "6aefc00863d2501f59bb3bebcf3b7ef9c28fa69c4bc45c01fb47f0830ff1c27d",
         "signature": "5a3b11cb5ea8fd317e5dee9ee66792b0cc1f12d4b38275dc180234b1387dfb8d",
         "affectsGlobalScope": false
       },
@@ -1202,7 +1202,7 @@
         "affectsGlobalScope": false
       },
       "./src/server.ts": {
-        "version": "477a8dadf6b4610c374d97e3ec4e0961b453b6a12670076f6196646049be6d7d",
+        "version": "08bac03b0fe12bc5cf78f1ba88559ce9f86cf79c040211539a37c8d6d4ef500f",
         "signature": "1bdaab87b793f49e745a6a1700bd74197b0a088d4e90ddc6f5bcb1a227fe826b",
         "affectsGlobalScope": false
       },
