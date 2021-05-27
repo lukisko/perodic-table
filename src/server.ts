@@ -5,7 +5,7 @@ import App from './app';
 
 // add some generic error handlers here, to log any exceptions we're not expecting
 // process.on('uncaughtException', err => console.log('uncaughtException', err));
-//process.on('unhandledRejection', reason => console.log('unhandledRejection', reason));
+//rocess.on('unhandledRejection', reason => console.log('unhandledRejection', reason));
 
 // Read .env if file exists
 dotenv.config();

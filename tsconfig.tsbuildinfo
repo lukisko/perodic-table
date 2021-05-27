@@ -1187,7 +1187,7 @@
         "affectsGlobalScope": false
       },
       "./src/periodicBox.ts": {
-        "version": "b8e036242f12fcc1a94cf4600b9d017beac04dfe04a7fccbf5921680f7dc9e22",
+        "version": "864f85054fbc25e1486b4984d6f1cdbfdc32e0636007496d7cffc13fbc017c77",
         "signature": "907a32be159c08af887198f6391917bdf2b08a8f6d47a6eb7539738fb84d5ad1",
         "affectsGlobalScope": false
       },
@@ -1202,7 +1202,7 @@
         "affectsGlobalScope": false
       },
       "./src/server.ts": {
-        "version": "08bac03b0fe12bc5cf78f1ba88559ce9f86cf79c040211539a37c8d6d4ef500f",
+        "version": "69a2dfbc14ceccbf5ba266f2798c1a15d49bb87d0e35c24873874c8439e632e9",
         "signature": "1bdaab87b793f49e745a6a1700bd74197b0a088d4e90ddc6f5bcb1a227fe826b",
         "affectsGlobalScope": false
       },

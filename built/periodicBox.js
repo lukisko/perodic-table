@@ -259,7 +259,7 @@ class PeriodicTable {
             if (this.started) {
                 return;
             }
-            user.prompt("how hard do you want it? (0,1 or 2)", true)
+            user.prompt("difficulty? (0,1 or 2)", true)
                 .then((value) => {
                 if (value.submitted) {
                     switch (value.text) {
