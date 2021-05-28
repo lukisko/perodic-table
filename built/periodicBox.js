@@ -237,7 +237,7 @@ class PeriodicTable {
         startAssignmentButton.onClick(user => {
             user.groups.clear();
             this.participants.push(user.id);
-            console.log(this.participants);
+            //console.log(this.participants);
             user.groups.add(this.participantGroup);
         });
     }
@@ -267,7 +267,7 @@ class PeriodicTable {
     makePeriodicBoxAction(box) {
         const button = box.setBehavior(MRE.ButtonBehavior);
         button.onHover("enter", (user) => {
-            if (this.participants.indexOf(user.id) === -1) {
+            if (!this.participants.includes(user.id)) {
                 return;
             }
             if (box.tag.startsWith("group")) {
@@ -275,7 +275,7 @@ class PeriodicTable {
             }
         });
         button.onHover("exit", (user) => {
-            if (this.participants.indexOf(user.id) === -1) {
+            if (!this.participants.includes(user.id)) {
                 return;
             }
             const cube = box.children.pop();
@@ -284,7 +284,7 @@ class PeriodicTable {
             }
         });
         button.onClick((user) => {
-            if (this.participants.indexOf(user.id) === -1) {
+            if (!this.participants.includes(user.id)) {
                 return;
             }
             if (this.currentElement.tag === box.name) {
