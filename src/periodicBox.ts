@@ -52,7 +52,7 @@ export default class PeriodicTable {
 		}
 		this.elementBoxesArr = [];
 		this.elementBoxes = new Map<string, MRE.Actor>();
-		this.makeChangingBox({ x: 2, y: 0, z: 0 });
+		this.makeChangingBox({ x: -2, y: 0, z: 0 });
 		this.started = false;
 
 		this.participants = [];
@@ -62,7 +62,7 @@ export default class PeriodicTable {
 		this.groupMaskParticipants = new MRE.GroupMask(this.assets.context, [this.participantGroup]);
 		this.groupMaskNoParticipants = this.groupMaskParticipants.invert();
 		this.makeAllPeriodicBoxes();
-		this.makeStartButtonActor({ x: 0, y: 0, z: 2 });
+		this.makeStartButtonActor({ x: 0, y: 0, z: -2 });
 		const arr = this.makeRandomElement();
 		this.changeChangingCube(arr[0], arr[1]);
 		//console.log(periodicTableInfo);
@@ -113,7 +113,7 @@ export default class PeriodicTable {
 
 				startingY += periodBigBoxSize + margin;
 			}
-			startingX -= periodBigBoxSize + margin;
+			startingX += periodBigBoxSize + margin;
 		}
 	}
 
@@ -186,7 +186,7 @@ export default class PeriodicTable {
 		this.startButton = MRE.Actor.CreatePrimitive(this.assets, {
 			definition: {
 				shape: MRE.PrimitiveShape.Box,
-				dimensions: { x: 0.2, y: 0.1, z: 0.02 }
+				dimensions: { x: 1.0, y: 0.4, z: 0.02 }
 			},
 			addCollider: true,
 			actor: {
@@ -246,7 +246,8 @@ export default class PeriodicTable {
 		const startAssignmentButton = this.startButton.setBehavior(MRE.ButtonBehavior);
 		startAssignmentButton.onClick(user => {
 			user.groups.clear();
-			this.participants.push();
+			this.participants.push(user.id);
+			console.log(this.participants);
 			user.groups.add(this.participantGroup);
 		});
 
@@ -280,18 +281,27 @@ export default class PeriodicTable {
 	public makePeriodicBoxAction(box: MRE.Actor) {
 		const button = box.setBehavior(MRE.ButtonBehavior);
 		button.onHover("enter", (user) => {
+			if (this.participants.indexOf(user.id) === -1){
+				return;
+			}
 			if (box.tag.startsWith("group")) {
 				this.makeBox2(box, user);
 			}
 
 		});
 		button.onHover("exit", (user) => {
+			if (this.participants.indexOf(user.id) === -1){
+				return;
+			}
 			const cube = box.children.pop()
 			if (cube) {
 				cube.destroy();
 			}
 		});
-		button.onClick(() => {
+		button.onClick((user) => {
+			if (this.participants.indexOf(user.id) === -1){
+				return;
+			}
 			if (this.currentElement.tag === box.name) {
 				//console.log(true);
 				box.appearance.materialId = this.currentElement.appearance.materialId;
@@ -406,6 +416,7 @@ export default class PeriodicTable {
 	 */
 
 	public onUserJoin(user: MRE.User) {
+		user.groups.clear();
 		if (!this.spaceID){
 			this.spaceID = user.properties['altspacevr-space-id'];
 		}
