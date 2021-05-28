@@ -32,8 +32,8 @@ class LearningWorld {
             this.started();
         });
         const periodic = new periodicBox_1.default(this.assets, { x: 0, y: 0, z: 0 });
-        this.context.onUserJoined(() => {
-            periodic.onUserJoin();
+        this.context.onUserJoined((user) => {
+            periodic.onUserJoin(user);
         });
     }
     started() {

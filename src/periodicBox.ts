@@ -1,4 +1,6 @@
 import * as MRE from '@microsoft/mixed-reality-extension-sdk';
+import { application } from 'express';
+import request from 'request';
 
 type periodicTableType = string[][];
 
@@ -21,11 +23,16 @@ export default class PeriodicTable {
 	private elementBoxesIndex: number;
 	private readonly groupName: string = "TEST";
 	private readonly groupName2: string = "Cs";
-	private groupMask: MRE.GroupMask;
-	private groupMask2: MRE.GroupMask;
+	private groupMaskParticipants: MRE.GroupMask;
+	private groupMaskNoParticipants: MRE.GroupMask;
+	private readonly participantGroup = "PARTICIPANTS";
 	private started: boolean;
 	private cubesWanted: string[];
 	private cubesWantedMap: Map<string, string>;
+	private participants: MRE.Guid[];
+	private participantsWithStars: MRE.Guid[];
+	private startButton: MRE.Actor;
+	private spaceID: string;
 
 	public constructor(private assets: MRE.AssetContainer,
 		position: MRE.Vector3Like, rotation: MRE.QuaternionLike = { x: 0, y: 0, z: 0, w: 1 }) {
@@ -48,10 +55,14 @@ export default class PeriodicTable {
 		this.makeChangingBox({ x: 2, y: 0, z: 0 });
 		this.started = false;
 
+		this.participants = [];
+		this.participantsWithStars = [];
 		//this.makePeriodicBox({x:0,y:0,z:0},this.groupName,this.groupMask);
 		//this.makePeriodicBox({x:-1,y:0,z:0},this.groupName2,this.groupMask2);
+		this.groupMaskParticipants = new MRE.GroupMask(this.assets.context, [this.participantGroup]);
+		this.groupMaskNoParticipants = this.groupMaskParticipants.invert();
 		this.makeAllPeriodicBoxes();
-
+		this.makeStartButtonActor({ x: 0, y: 0, z: 2 });
 		const arr = this.makeRandomElement();
 		this.changeChangingCube(arr[0], arr[1]);
 		//console.log(periodicTableInfo);
@@ -137,7 +148,7 @@ export default class PeriodicTable {
 		this.elementBoxesArr.push(box);
 		this.makePeriodicBoxAction(box);
 	}
-	
+
 	/**
 	 * funciton that create a box and put it into this.lementBoxes
 	 * @param position position where should the cube be
@@ -171,6 +182,75 @@ export default class PeriodicTable {
 		this.elementBoxes.set(element, box);
 	}
 
+	private makeStartButtonActor(position: MRE.Vector3Like) {
+		this.startButton = MRE.Actor.CreatePrimitive(this.assets, {
+			definition: {
+				shape: MRE.PrimitiveShape.Box,
+				dimensions: { x: 0.2, y: 0.1, z: 0.02 }
+			},
+			addCollider: true,
+			actor: {
+				name: "start",
+				transform: { local: { position } }
+			}
+		});
+		this.startButton.collider.layer = MRE.CollisionLayer.Default;
+
+		MRE.Actor.Create(this.assets.context, {
+			actor: {
+				parentId: this.startButton.id,
+				transform: {
+					local: {
+						position: {
+							x: 0, y: 0, z: -0.06,
+						}
+					}
+				},
+				text: {
+					contents: "Start",
+					color: { r: .2, g: .2, b: .2 },
+					height: .2,
+					anchor: MRE.TextAnchorLocation.MiddleCenter,
+				},
+				appearance: {
+					enabled: this.groupMaskNoParticipants
+				}
+			}
+		});
+
+		MRE.Actor.Create(this.assets.context, {
+			actor: {
+				parentId: this.startButton.id,
+				transform: {
+					local: {
+						position: {
+							x: 0, y: 0, z: -0.06,
+						}
+					}
+				},
+				text: {
+					contents: "Started",
+					color: { r: .2, g: .2, b: .2 },
+					height: .2,
+					anchor: MRE.TextAnchorLocation.MiddleCenter,
+				},
+				appearance: {
+					enabled: this.groupMaskParticipants
+				}
+			}
+		});
+		this.startAssignmentAction();
+	}
+
+	private startAssignmentAction() {
+		const startAssignmentButton = this.startButton.setBehavior(MRE.ButtonBehavior);
+		startAssignmentButton.onClick(user => {
+			user.groups.clear();
+			this.participants.push();
+			user.groups.add(this.participantGroup);
+		});
+
+	}
 	/**
 	 * function that will make cube appear to be selected by creating bigger white box
 	 * @param parent cube that show which cube user point to
@@ -325,11 +405,20 @@ export default class PeriodicTable {
 	 * what will happen when a user will join, we need to remake everithing clickable because of leter joiner bug
 	 */
 
-	public onUserJoin() {
+	public onUserJoin(user: MRE.User) {
+		if (!this.spaceID){
+			this.spaceID = user.properties['altspacevr-space-id'];
+		}
 		this.elementBoxesArr.forEach((value) => {
 			this.makePeriodicBoxAction(value);
 		});
-		this.changingCubeClickAction();
+		if (this.currentElement) {
+			this.changingCubeClickAction()
+		}
+
+		if (this.startButton) {
+			this.startAssignmentAction();
+		}
 	}
 
 	/**
@@ -348,11 +437,53 @@ export default class PeriodicTable {
 		//console.log(randomCube.tag);
 		return [randomCube.tag, randomCube.name];
 	}
-	
+
 	private allElementsTaken() {
 		//TODO what to do if all of them are on its place
-		this.currentElement.tag = null ;
+		this.currentElement.tag = null;
+		this.sendToServer(this.participants);
 	}
+
+	private sendToServer(users: MRE.Guid[]) {
+		//TODO
+		//console.log(users);
+		if (!this.spaceID) {
+			try {
+				this.spaceID = this.assets.context.users[0].properties['altspacevr-space-id'];
+			} catch {
+				return;
+			}
+		}
+		users.map((user: MRE.Guid) => {
+			if (this.participantsWithStars.includes(user)) {
+				return;
+			}
+			//console.log("send to server");
+			const userUser = this.assets.context.user(user);
+			//console.log(userUser.context,userUser.internal,userUser.properties);
+			request.post(
+				'https://storstrom-server.herokuapp.com/add',
+				{
+					json: {
+						sessionId: this.spaceID,
+						userName: userUser.name,
+						userIp: userUser.properties['remoteAddress']
+					}
+				},
+				(err, res, body) => {
+					if (err) {
+						//console.log(err);
+						return;
+					}
+
+					//console.log(res.body);
+				}
+			);
+			this.participantsWithStars.push(user);
+		})
+
+	}
+
 
 	/**
 	 * function that will change texture of the this.currentElement

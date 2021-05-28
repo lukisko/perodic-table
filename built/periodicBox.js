@@ -18,8 +18,12 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const MRE = __importStar(require("@microsoft/mixed-reality-extension-sdk"));
+const request_1 = __importDefault(require("request"));
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const periodicTableInfo = require('../public/periodicTable.json');
 const buttonBoxSize = 1;
@@ -33,6 +37,7 @@ class PeriodicTable {
         this.assets = assets;
         this.groupName = "TEST";
         this.groupName2 = "Cs";
+        this.participantGroup = "PARTICIPANTS";
         this.position = position;
         this.rotation = rotation;
         this.centerSpace = MRE.Actor.Create(this.assets.context, {
@@ -51,9 +56,14 @@ class PeriodicTable {
         this.elementBoxes = new Map();
         this.makeChangingBox({ x: 2, y: 0, z: 0 });
         this.started = false;
+        this.participants = [];
+        this.participantsWithStars = [];
         //this.makePeriodicBox({x:0,y:0,z:0},this.groupName,this.groupMask);
         //this.makePeriodicBox({x:-1,y:0,z:0},this.groupName2,this.groupMask2);
+        this.groupMaskParticipants = new MRE.GroupMask(this.assets.context, [this.participantGroup]);
+        this.groupMaskNoParticipants = this.groupMaskParticipants.invert();
         this.makeAllPeriodicBoxes();
+        this.makeStartButtonActor({ x: 0, y: 0, z: 2 });
         const arr = this.makeRandomElement();
         this.changeChangingCube(arr[0], arr[1]);
         //console.log(periodicTableInfo);
@@ -164,6 +174,71 @@ class PeriodicTable {
             }
         });
         this.elementBoxes.set(element, box);
+    }
+    makeStartButtonActor(position) {
+        this.startButton = MRE.Actor.CreatePrimitive(this.assets, {
+            definition: {
+                shape: MRE.PrimitiveShape.Box,
+                dimensions: { x: 0.2, y: 0.1, z: 0.02 }
+            },
+            addCollider: true,
+            actor: {
+                name: "start",
+                transform: { local: { position } }
+            }
+        });
+        this.startButton.collider.layer = MRE.CollisionLayer.Default;
+        MRE.Actor.Create(this.assets.context, {
+            actor: {
+                parentId: this.startButton.id,
+                transform: {
+                    local: {
+                        position: {
+                            x: 0, y: 0, z: -0.06,
+                        }
+                    }
+                },
+                text: {
+                    contents: "Start",
+                    color: { r: .2, g: .2, b: .2 },
+                    height: .2,
+                    anchor: MRE.TextAnchorLocation.MiddleCenter,
+                },
+                appearance: {
+                    enabled: this.groupMaskNoParticipants
+                }
+            }
+        });
+        MRE.Actor.Create(this.assets.context, {
+            actor: {
+                parentId: this.startButton.id,
+                transform: {
+                    local: {
+                        position: {
+                            x: 0, y: 0, z: -0.06,
+                        }
+                    }
+                },
+                text: {
+                    contents: "Started",
+                    color: { r: .2, g: .2, b: .2 },
+                    height: .2,
+                    anchor: MRE.TextAnchorLocation.MiddleCenter,
+                },
+                appearance: {
+                    enabled: this.groupMaskParticipants
+                }
+            }
+        });
+        this.startAssignmentAction();
+    }
+    startAssignmentAction() {
+        const startAssignmentButton = this.startButton.setBehavior(MRE.ButtonBehavior);
+        startAssignmentButton.onClick(user => {
+            user.groups.clear();
+            this.participants.push();
+            user.groups.add(this.participantGroup);
+        });
     }
     /**
      * function that will make cube appear to be selected by creating bigger white box
@@ -306,11 +381,19 @@ class PeriodicTable {
     /**
      * what will happen when a user will join, we need to remake everithing clickable because of leter joiner bug
      */
-    onUserJoin() {
+    onUserJoin(user) {
+        if (!this.spaceID) {
+            this.spaceID = user.properties['altspacevr-space-id'];
+        }
         this.elementBoxesArr.forEach((value) => {
             this.makePeriodicBoxAction(value);
         });
-        this.changingCubeClickAction();
+        if (this.currentElement) {
+            this.changingCubeClickAction();
+        }
+        if (this.startButton) {
+            this.startAssignmentAction();
+        }
     }
     /**
      * function that will make random array of group number and element
@@ -330,6 +413,41 @@ class PeriodicTable {
     allElementsTaken() {
         //TODO what to do if all of them are on its place
         this.currentElement.tag = null;
+        this.sendToServer(this.participants);
+    }
+    sendToServer(users) {
+        //TODO
+        //console.log(users);
+        if (!this.spaceID) {
+            try {
+                this.spaceID = this.assets.context.users[0].properties['altspacevr-space-id'];
+            }
+            catch (_a) {
+                return;
+            }
+        }
+        users.map((user) => {
+            if (this.participantsWithStars.includes(user)) {
+                return;
+            }
+            //console.log("send to server");
+            const userUser = this.assets.context.user(user);
+            //console.log(userUser.context,userUser.internal,userUser.properties);
+            request_1.default.post('https://storstrom-server.herokuapp.com/add', {
+                json: {
+                    sessionId: this.spaceID,
+                    userName: userUser.name,
+                    userIp: userUser.properties['remoteAddress']
+                }
+            }, (err, res, body) => {
+                if (err) {
+                    //console.log(err);
+                    return;
+                }
+                //console.log(res.body);
+            });
+            this.participantsWithStars.push(user);
+        });
     }
     /**
      * function that will change texture of the this.currentElement

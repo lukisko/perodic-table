@@ -13,8 +13,8 @@ export default class LearningWorld {
 
 		const periodic = new PeriodicTable(this.assets, { x: 0, y: 0, z: 0 });
 
-		this.context.onUserJoined(() => {
-			periodic.onUserJoin();
+		this.context.onUserJoined((user) => {
+			periodic.onUserJoin(user);
 		})
 	}
 

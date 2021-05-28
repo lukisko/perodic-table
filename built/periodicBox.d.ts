@@ -10,11 +10,16 @@ export default class PeriodicTable {
     private elementBoxesIndex;
     private readonly groupName;
     private readonly groupName2;
-    private groupMask;
-    private groupMask2;
+    private groupMaskParticipants;
+    private groupMaskNoParticipants;
+    private readonly participantGroup;
     private started;
     private cubesWanted;
     private cubesWantedMap;
+    private participants;
+    private participantsWithStars;
+    private startButton;
+    private spaceID;
     constructor(assets: MRE.AssetContainer, position: MRE.Vector3Like, rotation?: MRE.QuaternionLike);
     /**
      * this function is going to create all boxes using makePeriodicBox or makeFinishedPeriodicBox
@@ -35,6 +40,8 @@ export default class PeriodicTable {
      * @param elementGroup name that will be tag to know in which folder ti find the texture
      */
     makeFinishedPeriodicBox(position: MRE.Vector3Like, element: string, elementGroup: number): void;
+    private makeStartButtonActor;
+    private startAssignmentAction;
     /**
      * function that will make cube appear to be selected by creating bigger white box
      * @param parent cube that show which cube user point to
@@ -63,13 +70,14 @@ export default class PeriodicTable {
     /**
      * what will happen when a user will join, we need to remake everithing clickable because of leter joiner bug
      */
-    onUserJoin(): void;
+    onUserJoin(user: MRE.User): void;
     /**
      * function that will make random array of group number and element
      * @returns array of random cube tag and the name of the cube from array this.elementBoxesArr
      */
     private makeRandomElement;
     private allElementsTaken;
+    private sendToServer;
     /**
      * function that will change texture of the this.currentElement
      * @param groupNumber number of group of the element (also name of the folder)
