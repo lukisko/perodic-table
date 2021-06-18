@@ -64,7 +64,7 @@ class PeriodicTable {
         this.groupMaskParticipants = new MRE.GroupMask(this.assets.context, [this.participantGroup]);
         this.groupMaskNoParticipants = this.groupMaskParticipants.invert();
         this.makeAllPeriodicBoxes();
-        this.makeStartButtonActor({ x: 0, y: 0, z: -2 });
+        this.makeStartButtonActor({ x: -2, y: 1, z: 0 });
         const arr = this.makeRandomElement();
         this.changeChangingCube(arr[0], arr[1]);
         //console.log(periodicTableInfo);

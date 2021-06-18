@@ -1247,7 +1247,7 @@
         "affectsGlobalScope": false
       },
       "./src/periodicBox.ts": {
-        "version": "3c960e45e232eff9776973abbe211c6b7f0c4be015b41ffba5b3c1c852a0723d",
+        "version": "05814399be6a712b0497a05ff8969fb8dabf81278adf440646a247914343a8b2",
         "signature": "d6a260379a1b38226d88d6aff789f63daf54b9a204f320abdba03c0ac4707076",
         "affectsGlobalScope": false
       },
@@ -1314,6 +1314,8 @@
       "strictNullChecks": false,
       "moduleResolution": 2,
       "esModuleInterop": true,
+      "watch": true,
+      "preserveWatchOutput": true,
       "configFilePath": "./tsconfig.json"
     },
     "referencedMap": {
