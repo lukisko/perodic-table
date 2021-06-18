@@ -7,6 +7,7 @@ type periodicTableType = string[][];
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const periodicTableInfo: periodicTableType = require('../public/periodicTable.json');
 const buttonBoxSize = 1;
+const buttonBoxZSize = 0.03;
 const periodBlackBoxSize = 0.1;
 const periodicWhiteBoxSize = 0.15;
 const periodBigBoxSize = 0.4
@@ -338,7 +339,7 @@ export default class PeriodicTable {
 		this.currentElement = MRE.Actor.CreatePrimitive(this.assets, {
 			definition: {
 				shape: MRE.PrimitiveShape.Box,
-				dimensions: { x: buttonBoxSize, y: buttonBoxSize, z: buttonBoxSize }
+				dimensions: { x: buttonBoxSize, y: buttonBoxSize, z: buttonBoxZSize }
 			},
 			addCollider: true,
 			actor: {
