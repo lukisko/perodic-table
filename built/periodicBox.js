@@ -174,6 +174,7 @@ class PeriodicTable {
                 }
             }
         });
+        this.hideSides(box, { x: periodBigBoxSize, y: periodBigBoxSize, z: zDimension });
         this.elementBoxes.set(element, box);
     }
     makeStartButtonActor(position) {
@@ -296,6 +297,8 @@ class PeriodicTable {
                 //console.log(this.elementBoxesArr.length,this.elementBoxesIndex);
                 this.elementBoxesArr[this.elementBoxesIndex].tag = "DONE";
                 this.elementBoxesArr.splice(this.elementBoxesIndex, 1);
+                //hide of the sides do not work on this???
+                //this.hideSides(box,{ x: periodBigBoxSize, y: periodBigBoxSize, z: zDimension });
             }
             const arr = this.makeRandomElement();
             if (arr.length > 1) {
@@ -306,6 +309,23 @@ class PeriodicTable {
                 elemToDel.destroy();
             }
         });
+    }
+    hideSides(parent, dimensions) {
+        const whiteToDelete = MRE.Actor.CreatePrimitive(this.assets, {
+            definition: {
+                shape: MRE.PrimitiveShape.Box,
+                dimensions: {
+                    x: dimensions.x + 0.001,
+                    y: dimensions.y + 0.001,
+                    z: dimensions.z - 0.001
+                }
+            },
+            addCollider: true,
+            actor: {
+                parentId: parent.id
+            }
+        });
+        whiteToDelete.collider.layer = MRE.CollisionLayer.Navigation;
     }
     /**
      * function that create actor that will show element that a person want to find place for
@@ -386,10 +406,10 @@ class PeriodicTable {
      */
     reloadBoxes(url) {
         this.cubesWanted = require(url);
+        //delete previous boxes
         this.elementBoxes.forEach((value) => {
             value.destroy();
         });
-        //console.log("boxes destroyed.");
         this.cubesWantedMap = new Map();
         for (let i = 0; i < this.cubesWanted.length; i++) {
             const str = this.cubesWanted[i];

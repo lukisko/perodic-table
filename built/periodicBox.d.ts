@@ -53,6 +53,7 @@ export default class PeriodicTable {
      * @param box actor that will gain the clicking and hover ability
      */
     makePeriodicBoxAction(box: MRE.Actor): void;
+    private hideSides;
     /**
      * function that create actor that will show element that a person want to find place for
      * @param position vector that say position where to have the cube

@@ -1,4 +1,5 @@
 import * as MRE from '@microsoft/mixed-reality-extension-sdk';
+import { BoxAlignment } from '@microsoft/mixed-reality-extension-sdk';
 import { application } from 'express';
 import request from 'request';
 
@@ -180,6 +181,7 @@ export default class PeriodicTable {
 				}
 			}
 		});
+		this.hideSides(box,{ x: periodBigBoxSize, y: periodBigBoxSize, z: zDimension });
 		this.elementBoxes.set(element, box);
 	}
 
@@ -311,6 +313,9 @@ export default class PeriodicTable {
 				//console.log(this.elementBoxesArr.length,this.elementBoxesIndex);
 				this.elementBoxesArr[this.elementBoxesIndex].tag = "DONE";
 				this.elementBoxesArr.splice(this.elementBoxesIndex, 1);
+
+				//hide of the sides do not work on this???
+				//this.hideSides(box,{ x: periodBigBoxSize, y: periodBigBoxSize, z: zDimension });
 			}
 			const arr = this.makeRandomElement();
 			if (arr.length > 1) {
@@ -321,6 +326,24 @@ export default class PeriodicTable {
 				elemToDel.destroy();
 			}
 		})
+	}
+
+	private hideSides(parent: MRE.Actor, dimensions: MRE.Vector3Like): void{
+		const whiteToDelete = MRE.Actor.CreatePrimitive(this.assets,{
+			definition:{
+				shape: MRE.PrimitiveShape.Box,
+				dimensions:{
+					x:dimensions.x+0.001,
+					y:dimensions.y+0.001,
+					z:dimensions.z-0.001
+				}
+			},
+			addCollider: true,
+			actor:{
+				parentId: parent.id
+			}
+		});
+		whiteToDelete.collider.layer = MRE.CollisionLayer.Navigation;
 	}
 
 	/**
@@ -408,10 +431,10 @@ export default class PeriodicTable {
 
 	private reloadBoxes(url: string) {
 		this.cubesWanted = require(url);
+		//delete previous boxes
 		this.elementBoxes.forEach((value) => {
 			value.destroy();
 		});
-		//console.log("boxes destroyed.");
 		this.cubesWantedMap = new Map<string, string>();
 		for (let i = 0; i < this.cubesWanted.length; i++) {
 			const str = this.cubesWanted[i];
