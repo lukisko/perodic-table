@@ -334,6 +334,18 @@ class PeriodicTable {
                 }
             }
         });
+        //make white place around the big box so there is no texture visible from sides
+        MRE.Actor.CreatePrimitive(this.assets, {
+            definition: {
+                shape: MRE.PrimitiveShape.Box,
+                dimensions: { x: buttonBoxSize + 0.001, y: buttonBoxSize + 0.001, z: buttonBoxZSize - 0.001 }
+            },
+            addCollider: true,
+            actor: {
+                parentId: this.centerSpace.id,
+                transform: { local: { position: position } }
+            }
+        });
         this.changingCubeClickAction();
     }
     /**

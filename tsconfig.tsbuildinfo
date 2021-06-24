@@ -1247,7 +1247,7 @@
         "affectsGlobalScope": false
       },
       "./src/periodicBox.ts": {
-        "version": "05814399be6a712b0497a05ff8969fb8dabf81278adf440646a247914343a8b2",
+        "version": "680ac2bc6f2aaabdd1352d320d79269b3a05d85c4aba4fbbc1e11bb81179291f",
         "signature": "d6a260379a1b38226d88d6aff789f63daf54b9a204f320abdba03c0ac4707076",
         "affectsGlobalScope": false
       },
