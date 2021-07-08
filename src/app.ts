@@ -1,5 +1,4 @@
 import * as MRE from '@microsoft/mixed-reality-extension-sdk';
-import changableButton from './changableButton';
 import PeriodicTable from './periodicBox';
 
 export default class LearningWorld {

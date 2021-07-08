@@ -1,7 +1,6 @@
 import * as MRE from '@microsoft/mixed-reality-extension-sdk';
-import { BoxAlignment } from '@microsoft/mixed-reality-extension-sdk';
-import { application } from 'express';
 import request from 'request';
+import Database from './database';
 
 type periodicTableType = string[][];
 
@@ -35,6 +34,7 @@ export default class PeriodicTable {
 	private participantsWithStars: MRE.Guid[];
 	private startButton: MRE.Actor;
 	private spaceID: string;
+	private pgDatbase: Database;
 
 	public constructor(private assets: MRE.AssetContainer,
 		position: MRE.Vector3Like, rotation: MRE.QuaternionLike = { x: 0, y: 0, z: 0, w: 1 }) {
@@ -67,6 +67,10 @@ export default class PeriodicTable {
 		this.makeStartButtonActor({ x: -2, y: 1, z: 0 });
 		const arr = this.makeRandomElement();
 		this.changeChangingCube(arr[0], arr[1]);
+
+		this.pgDatbase = new Database('postgres://huicwczlmsgele:' +
+			'1d083f5711069c994fe5ee8c59ef3023f492bc6da48b0e970c620f4a7aac3cc5' +
+			'@ec2-54-78-36-245.eu-west-1.compute.amazonaws.com:5432/d9tje5dt0llf66');
 		//console.log(periodicTableInfo);
 	}
 
@@ -181,7 +185,7 @@ export default class PeriodicTable {
 				}
 			}
 		});
-		this.hideSides(box,{ x: periodBigBoxSize, y: periodBigBoxSize, z: zDimension });
+		this.hideSides(box, { x: periodBigBoxSize, y: periodBigBoxSize, z: zDimension });
 		this.elementBoxes.set(element, box);
 	}
 
@@ -284,7 +288,7 @@ export default class PeriodicTable {
 	public makePeriodicBoxAction(box: MRE.Actor) {
 		const button = box.setBehavior(MRE.ButtonBehavior);
 		button.onHover("enter", (user) => {
-			if (!this.participants.includes(user.id)){
+			if (!this.participants.includes(user.id)) {
 				return;
 			}
 			if (box.tag.startsWith("group")) {
@@ -293,7 +297,7 @@ export default class PeriodicTable {
 
 		});
 		button.onHover("exit", (user) => {
-			if (!this.participants.includes(user.id)){
+			if (!this.participants.includes(user.id)) {
 				return;
 			}
 			const cube = box.children.pop()
@@ -302,7 +306,7 @@ export default class PeriodicTable {
 			}
 		});
 		button.onClick((user) => {
-			if (!this.participants.includes(user.id)){
+			if (!this.participants.includes(user.id)) {
 				return;
 			}
 			if (this.currentElement.tag === box.name) {
@@ -328,18 +332,18 @@ export default class PeriodicTable {
 		})
 	}
 
-	private hideSides(parent: MRE.Actor, dimensions: MRE.Vector3Like): void{
-		const whiteToDelete = MRE.Actor.CreatePrimitive(this.assets,{
-			definition:{
+	private hideSides(parent: MRE.Actor, dimensions: MRE.Vector3Like): void {
+		const whiteToDelete = MRE.Actor.CreatePrimitive(this.assets, {
+			definition: {
 				shape: MRE.PrimitiveShape.Box,
-				dimensions:{
-					x:dimensions.x+0.001,
-					y:dimensions.y+0.001,
-					z:dimensions.z-0.001
+				dimensions: {
+					x: dimensions.x + 0.001,
+					y: dimensions.y + 0.001,
+					z: dimensions.z - 0.001
 				}
 			},
 			addCollider: true,
-			actor:{
+			actor: {
 				parentId: parent.id
 			}
 		});
@@ -376,14 +380,14 @@ export default class PeriodicTable {
 		});
 		//make white place around the big box so there is no texture visible from sides
 		MRE.Actor.CreatePrimitive(this.assets, {
-			definition:{
+			definition: {
 				shape: MRE.PrimitiveShape.Box,
-				dimensions:{ x: buttonBoxSize+0.001, y: buttonBoxSize+0.001, z: buttonBoxZSize-0.001}
+				dimensions: { x: buttonBoxSize + 0.001, y: buttonBoxSize + 0.001, z: buttonBoxZSize - 0.001 }
 			},
 			addCollider: true,
-			actor:{
+			actor: {
 				parentId: this.centerSpace.id,
-				transform: { local: {position: position}}
+				transform: { local: { position: position } }
 			}
 		})
 
@@ -400,28 +404,38 @@ export default class PeriodicTable {
 			if (this.started) {
 				return;
 			}
-			user.prompt("difficulty? (0,1 or 2)", true)
+			if (user.properties['altspacevr-roles'] === "") {
+				return;
+			}
+			user.prompt("Set difficulty: 1, 2 or 3.", true)
 				.then((value) => {
-					if (value.submitted) {
-						switch (value.text) {
-							case "0":
-								// eslint-disable-next-line @typescript-eslint/no-var-requires
-								this.reloadBoxes("../public/periodicTableEasy.json");
-								break;
-							case "1":
-								// eslint-disable-next-line @typescript-eslint/no-var-requires
-								this.reloadBoxes("../public/periodicTableMedium.json");
-								break;
-							case "2":
-								this.reloadBoxes("../public/periodicTableUltimate.json");
-								// if you want it hard you will have all of them
-								break;
-							default:
-								user.prompt("Sorry I did not get it, please try again");
-						}
-					}
-				})
+					this.handleLevelStringInput(value.submitted, value.text, user, false);
+				});
 		})
+	}
+
+	private handleLevelStringInput(submited: boolean, text: string, user: MRE.User, online: boolean) {
+		if (submited) {
+			switch (text) {
+				case "1":
+					this.reloadBoxes("../public/periodicTableEasy.json");
+					if (!online) { this.updateDatabase(text, user) }
+					break;
+				case "2":
+					this.reloadBoxes("../public/periodicTableMedium.json");
+					if (!online) { this.updateDatabase(text, user) }
+					break;
+				case "3":
+					this.reloadBoxes("../public/periodicTableUltimate.json");
+					if (!online) { this.updateDatabase(text, user) }
+					// if you want it hard you will have all of them
+					break;
+				default:
+					if (user) {
+						user.prompt("Sorry I did not get it, please try again later.");
+					}
+			}
+		}
 	}
 
 	/**
@@ -448,13 +462,22 @@ export default class PeriodicTable {
 	}
 
 	/**
-	 * what will happen when a user will join, we need to remake everithing clickable because of leter joiner bug
+	 * what will happen when a user will join, we need to remake everything clickable because of later joiner bug.
+	 * I also set the space id if it is not set alredy so the app know altspace identifier.
 	 */
 
 	public onUserJoin(user: MRE.User) {
 		user.groups.clear();
-		if (!this.spaceID){
+		if (!this.spaceID) {
 			this.spaceID = user.properties['altspacevr-space-id'];
+			this.pgDatbase.loadFromDatabase("select * from periodic_level where " +
+				"world_id = $1 and session_id = $2", [this.spaceID, this.assets.context.sessionId])
+				.then((arr) => {
+					//console.log(arr);
+					if (arr.length === 1) {
+						this.handleLevelStringInput(true, arr[0]['level'], null, true);
+					}
+				})
 		}
 		this.elementBoxesArr.forEach((value) => {
 			this.makePeriodicBoxAction(value);
@@ -473,7 +496,7 @@ export default class PeriodicTable {
 	 * @returns array of random cube tag and the name of the cube from array this.elementBoxesArr
 	 */
 
-	private makeRandomElement(): string[] { //TODO make it the way that there will be no duplicates
+	private makeRandomElement(): string[] { // TO DO make it the way that there will be no duplicates
 		if (this.elementBoxesArr.length < 1) {
 			this.allElementsTaken();
 			return [];
@@ -486,13 +509,11 @@ export default class PeriodicTable {
 	}
 
 	private allElementsTaken() {
-		//TODO what to do if all of them are on its place
 		this.currentElement.tag = null;
 		this.sendToServer(this.participants);
 	}
 
 	private sendToServer(users: MRE.Guid[]) {
-		//TODO
 		//console.log(users);
 		if (!this.spaceID) {
 			try {
@@ -551,6 +572,12 @@ export default class PeriodicTable {
 		});
 		this.currentElement.tag = element;
 		this.currentElement.appearance.materialId = material.id;
+	}
+
+	private updateDatabase(level: string, user: MRE.User) {
+		this.pgDatbase.saveToDatabase('insert into periodic_level (session_id,world_id,level)' +
+			' values ($1,$2,$3) ON CONFLICT (session_id, world_id) DO UPDATE SET level=$3;',
+		[this.assets.context.sessionId, this.spaceID, level]).catch(() => { });
 	}
 
 }

@@ -24,6 +24,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const MRE = __importStar(require("@microsoft/mixed-reality-extension-sdk"));
 const request_1 = __importDefault(require("request"));
+const database_1 = __importDefault(require("./database"));
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const periodicTableInfo = require('../public/periodicTable.json');
 const buttonBoxSize = 1;
@@ -67,6 +68,9 @@ class PeriodicTable {
         this.makeStartButtonActor({ x: -2, y: 1, z: 0 });
         const arr = this.makeRandomElement();
         this.changeChangingCube(arr[0], arr[1]);
+        this.pgDatbase = new database_1.default('postgres://huicwczlmsgele:' +
+            '1d083f5711069c994fe5ee8c59ef3023f492bc6da48b0e970c620f4a7aac3cc5' +
+            '@ec2-54-78-36-245.eu-west-1.compute.amazonaws.com:5432/d9tje5dt0llf66');
         //console.log(periodicTableInfo);
     }
     /**
@@ -377,28 +381,43 @@ class PeriodicTable {
             if (this.started) {
                 return;
             }
-            user.prompt("difficulty? (0,1 or 2)", true)
+            if (user.properties['altspacevr-roles'] === "") {
+                return;
+            }
+            user.prompt("Set difficulty: 1, 2 or 3.", true)
                 .then((value) => {
-                if (value.submitted) {
-                    switch (value.text) {
-                        case "0":
-                            // eslint-disable-next-line @typescript-eslint/no-var-requires
-                            this.reloadBoxes("../public/periodicTableEasy.json");
-                            break;
-                        case "1":
-                            // eslint-disable-next-line @typescript-eslint/no-var-requires
-                            this.reloadBoxes("../public/periodicTableMedium.json");
-                            break;
-                        case "2":
-                            this.reloadBoxes("../public/periodicTableUltimate.json");
-                            // if you want it hard you will have all of them
-                            break;
-                        default:
-                            user.prompt("Sorry I did not get it, please try again");
-                    }
-                }
+                this.handleLevelStringInput(value.submitted, value.text, user, false);
             });
         });
+    }
+    handleLevelStringInput(submited, text, user, online) {
+        if (submited) {
+            switch (text) {
+                case "1":
+                    this.reloadBoxes("../public/periodicTableEasy.json");
+                    if (!online) {
+                        this.updateDatabase(text, user);
+                    }
+                    break;
+                case "2":
+                    this.reloadBoxes("../public/periodicTableMedium.json");
+                    if (!online) {
+                        this.updateDatabase(text, user);
+                    }
+                    break;
+                case "3":
+                    this.reloadBoxes("../public/periodicTableUltimate.json");
+                    if (!online) {
+                        this.updateDatabase(text, user);
+                    }
+                    // if you want it hard you will have all of them
+                    break;
+                default:
+                    if (user) {
+                        user.prompt("Sorry I did not get it, please try again later.");
+                    }
+            }
+        }
     }
     /**
      * function that change this.cubesWanted, this.elementBoxes, this.elementBoxesArr and remake this.elementCube
@@ -422,12 +441,21 @@ class PeriodicTable {
         this.changeChangingCube(arr[0], arr[1]);
     }
     /**
-     * what will happen when a user will join, we need to remake everithing clickable because of leter joiner bug
+     * what will happen when a user will join, we need to remake everything clickable because of later joiner bug.
+     * I also set the space id if it is not set alredy so the app know altspace identifier.
      */
     onUserJoin(user) {
         user.groups.clear();
         if (!this.spaceID) {
             this.spaceID = user.properties['altspacevr-space-id'];
+            this.pgDatbase.loadFromDatabase("select * from periodic_level where " +
+                "world_id = $1 and session_id = $2", [this.spaceID, this.assets.context.sessionId])
+                .then((arr) => {
+                //console.log(arr);
+                if (arr.length === 1) {
+                    this.handleLevelStringInput(true, arr[0]['level'], null, true);
+                }
+            });
         }
         this.elementBoxesArr.forEach((value) => {
             this.makePeriodicBoxAction(value);
@@ -455,12 +483,10 @@ class PeriodicTable {
         return [randomCube.tag, randomCube.name];
     }
     allElementsTaken() {
-        //TODO what to do if all of them are on its place
         this.currentElement.tag = null;
         this.sendToServer(this.participants);
     }
     sendToServer(users) {
-        //TODO
         //console.log(users);
         if (!this.spaceID) {
             try {
@@ -511,6 +537,10 @@ class PeriodicTable {
         });
         this.currentElement.tag = element;
         this.currentElement.appearance.materialId = material.id;
+    }
+    updateDatabase(level, user) {
+        this.pgDatbase.saveToDatabase('insert into periodic_level (session_id,world_id,level)' +
+            ' values ($1,$2,$3) ON CONFLICT (session_id, world_id) DO UPDATE SET level=$3;', [this.assets.context.sessionId, this.spaceID, level]).catch(() => { });
     }
 }
 exports.default = PeriodicTable;

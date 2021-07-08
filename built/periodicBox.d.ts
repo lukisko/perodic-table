@@ -20,6 +20,7 @@ export default class PeriodicTable {
     private participantsWithStars;
     private startButton;
     private spaceID;
+    private pgDatbase;
     constructor(assets: MRE.AssetContainer, position: MRE.Vector3Like, rotation?: MRE.QuaternionLike);
     /**
      * this function is going to create all boxes using makePeriodicBox or makeFinishedPeriodicBox
@@ -63,13 +64,15 @@ export default class PeriodicTable {
      * action for this.currentElement that will gain click capatibilities
      */
     private changingCubeClickAction;
+    private handleLevelStringInput;
     /**
      * function that change this.cubesWanted, this.elementBoxes, this.elementBoxesArr and remake this.elementCube
      * @param url address to json where are elements that a person will need to put on place
      */
     private reloadBoxes;
     /**
-     * what will happen when a user will join, we need to remake everithing clickable because of leter joiner bug
+     * what will happen when a user will join, we need to remake everything clickable because of later joiner bug.
+     * I also set the space id if it is not set alredy so the app know altspace identifier.
      */
     onUserJoin(user: MRE.User): void;
     /**
@@ -85,5 +88,6 @@ export default class PeriodicTable {
      * @param element short string of the element name
      */
     private changeChangingCube;
+    private updateDatabase;
 }
 //# sourceMappingURL=periodicBox.d.ts.map
