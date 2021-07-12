@@ -300,6 +300,10 @@ export default class PeriodicTable {
 			if (!this.participants.includes(user.id)) {
 				return;
 			}
+			if (box.tag === "DONE"){
+				return; //if the object is on correct place and his childer
+				// is just the box that make white borders do not delete it.
+			}
 			const cube = box.children.pop()
 			if (cube) {
 				cube.destroy();
@@ -308,6 +312,11 @@ export default class PeriodicTable {
 		button.onClick((user) => {
 			if (!this.participants.includes(user.id)) {
 				return;
+			}
+			if (box.children.length>0){
+				const marker = box.children.pop();
+				marker.destroy();
+				console.log("bug fixed!");
 			}
 			if (this.currentElement.tag === box.name) {
 				//console.log(true);
@@ -319,20 +328,21 @@ export default class PeriodicTable {
 				this.elementBoxesArr.splice(this.elementBoxesIndex, 1);
 
 				//hide of the sides do not work on this???
-				//this.hideSides(box,{ x: periodBigBoxSize, y: periodBigBoxSize, z: zDimension });
+				this.hideSides(box,{ x: periodBigBoxSize/ration, y: periodBigBoxSize/ration, z: zDimension/1.1 });
 			}
 			const arr = this.makeRandomElement();
 			if (arr.length > 1) {
 				this.changeChangingCube(arr[0], arr[1]);
 			}
-			const elemToDel = box.children.pop();
+			/*const elemToDel = box.children.pop();
 			if (elemToDel) {
 				elemToDel.destroy();
-			}
+			}*/
 		})
 	}
 
 	private hideSides(parent: MRE.Actor, dimensions: MRE.Vector3Like): void {
+		console.log(parent.tag);
 		const whiteToDelete = MRE.Actor.CreatePrimitive(this.assets, {
 			definition: {
 				shape: MRE.PrimitiveShape.Box,
