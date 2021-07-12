@@ -316,7 +316,7 @@ export default class PeriodicTable {
 			if (box.children.length>0){
 				const marker = box.children.pop();
 				marker.destroy();
-				console.log("bug fixed!");
+				//console.log("bug fixed!");
 			}
 			if (this.currentElement.tag === box.name) {
 				//console.log(true);
@@ -342,7 +342,7 @@ export default class PeriodicTable {
 	}
 
 	private hideSides(parent: MRE.Actor, dimensions: MRE.Vector3Like): void {
-		console.log(parent.tag);
+		//console.log(parent.tag);
 		const whiteToDelete = MRE.Actor.CreatePrimitive(this.assets, {
 			definition: {
 				shape: MRE.PrimitiveShape.Box,
