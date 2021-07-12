@@ -410,7 +410,8 @@ export default class PeriodicTable {
 			user.prompt("Set difficulty: 1, 2 or 3.", true)
 				.then((value) => {
 					this.handleLevelStringInput(value.submitted, value.text, user, false);
-				});
+				})
+				.catch(() => { });
 		})
 	}
 
@@ -577,7 +578,8 @@ export default class PeriodicTable {
 	private updateDatabase(level: string, user: MRE.User) {
 		this.pgDatbase.saveToDatabase('insert into periodic_level (session_id,world_id,level)' +
 			' values ($1,$2,$3) ON CONFLICT (session_id, world_id) DO UPDATE SET level=$3;',
-		[this.assets.context.sessionId, this.spaceID, level]).catch(() => { });
+			[this.assets.context.sessionId, this.spaceID, level]).catch(() => { })
+			.catch(() => { throw new Error("update database not succesfull.") });
 	}
 
 }

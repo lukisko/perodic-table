@@ -387,7 +387,8 @@ class PeriodicTable {
             user.prompt("Set difficulty: 1, 2 or 3.", true)
                 .then((value) => {
                 this.handleLevelStringInput(value.submitted, value.text, user, false);
-            });
+            })
+                .catch(() => { });
         });
     }
     handleLevelStringInput(submited, text, user, online) {
@@ -540,7 +541,8 @@ class PeriodicTable {
     }
     updateDatabase(level, user) {
         this.pgDatbase.saveToDatabase('insert into periodic_level (session_id,world_id,level)' +
-            ' values ($1,$2,$3) ON CONFLICT (session_id, world_id) DO UPDATE SET level=$3;', [this.assets.context.sessionId, this.spaceID, level]).catch(() => { });
+            ' values ($1,$2,$3) ON CONFLICT (session_id, world_id) DO UPDATE SET level=$3;', [this.assets.context.sessionId, this.spaceID, level]).catch(() => { })
+            .catch(() => { throw new Error("update database not succesfull."); });
     }
 }
 exports.default = PeriodicTable;

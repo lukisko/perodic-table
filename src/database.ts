@@ -9,7 +9,7 @@ export default class Database {
 		const client = this.getDatabaseClient();
 		const returnArr: any[] = [];
 
-		client.connect();
+		client.connect().catch(() => { throw new Error("unable to connect to database.") });
 		const returnValue = new Promise<any[]>((resolve, reject) => {
 			client.query(sqlCommand, arg, (err, res) => {
 				if (err) {
@@ -18,7 +18,7 @@ export default class Database {
 				for (const row of res.rows) {
 					returnArr.push(row);
 				}
-				client.end();
+				client.end().catch(() => { throw new Error("unable to close database.") });
 				resolve(returnArr);
 			});
 		});
@@ -29,11 +29,11 @@ export default class Database {
 		const client = this.getDatabaseClient();
 
 		const returnPromise = new Promise<any>((resolve, reject) => {
-			client.connect();
+			client.connect().catch(() => { throw new Error("unable to connect to database.") });
 			client.query(sqlCommand, arg, (err, res) => {
 				if (err) { reject(err) }
 				if (res) { resolve(res.rows) }
-				client.end();
+				client.end().catch(() => { throw new Error("unable to close database.") });
 			});
 		});
 
